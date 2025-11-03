@@ -1,4 +1,4 @@
-/*import { blog } from 'https://raw.githubusercontent.com/evbogue/denoblog/master/blog.js'
+/*import { blog } from '/posts'
 
 blog({
   title: "Gwen Bell's Blog",
