@@ -1,13 +1,13 @@
-/import { blog } from '/posts'
+/import { blog } from './blog.js'
 
 blog({
-  title: "Gwen Bell's Blog",
+  title: "JustinMacauley.com",
   avatar: './gb.jpg',
   author: 'Gwen Bell',
   description: "Writer.",
   background: "#f5f5f5",
   links: [
-    { title: 'gwen@gwenbell.com', url: 'mailto:gwen@gwenbell.com'},
+    { title: 'Justin@justinmacauley.com', url: 'mailto:justin@justinmacauley.com'},
     { title: 'Denobook', url: 'https://denobook.com/#GBc4e5UsolZ9bABRaZkot34hWsKYwlNrdRvAETQJfOU='} 
   ]
 })*/
