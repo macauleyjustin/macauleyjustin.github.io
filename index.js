@@ -1,4 +1,4 @@
-/*import { blog } from '/posts'
+/import { blog } from '/posts'
 
 blog({
   title: "Gwen Bell's Blog",
