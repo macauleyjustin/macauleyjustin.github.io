@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justin Macauley - Resume [TRUENET_GREEN]</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;400&display=swap');
+
+        /* --- Base & Scrollbar --- */
+        body {
+            font-family: 'Roboto Mono', monospace;
+            line-height: 1.6;
+            background-color: #000;
+            color: #0f0; /* CHANGED: Green phosphor */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide body scrollbars */
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5); /* CHANGED: Green shadow */
+        }
+        
+        /* Custom scrollbar for the content */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+            border-left: 1px solid #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0f0; /* CHANGED: Green thumb */
+            border-radius: 5px;
+            box-shadow: 0 0 5px #0f0; /* CHANGED: Green shadow */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8f8; /* CHANGED: Lighter green */
+        }
+
+        /* --- Background Canvas --- */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7; /* Increased opacity slightly */
+        }
+        
+        /* --- NEW: Visual Static Overlay --- */
+        #visual-static-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            opacity: 0;
+            z-index: 3; /* On top of content */
+            pointer-events: none;
+            animation: visual-static 0.08s steps(1, end) infinite;
+        }
+
+        @keyframes visual-static {
+            0% {
+                background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjEuNSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjbnoaXNlKSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==');
+                opacity: 0.1;
+            }
+            10% { opacity: 0.05; }
+            20% { opacity: 0.12; }
+            30% { opacity: 0.03; }
+            40% { opacity: 0.08; }
+            50% { opacity: 0.15; }
+            60% { opacity: 0.02; }
+            70% { opacity: 0.1; }
+            80% { opacity: 0.04; }
+            90% { opacity: 0.11; }
+            100% { opacity: 0.01; }
+        }
+        
+        /* --- Content Layout --- */
+        .scroll-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* Enable scrolling for the content */
+            overflow-x: hidden;
+        }
+
+        /* --- Main CRT Screen Container --- */
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(0, 15, 0, 0.6); /* CHANGED: Green + More Transparent (0.6) */
+            border: 2px solid #0f0; /* CHANGED: Green border */
+            border-radius: 15px; /* Curved screen */
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), inset 0 0 20px rgba(0, 255, 0, 0.3); /* CHANGED: Green shadow */
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(2px); /* CHANGED: Reduced blur */
+            /* MODIFIED: Faster instability flicker */
+            animation: crt-instability 0.1s infinite alternate; /* CHANGED: Slower than before, but still shaky */
+        }
+
+        /* Scanlines Overlay */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 255, 0, 0.1) 50%, rgba(0, 0, 0, 0.5) 100%); /* CHANGED: Green gradient */
+            background-size: 100% 4px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 10s linear infinite;
+        }
+        
+        /* Static/Flicker Overlay */
+        .container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-radial-gradient(circle at 10% 10%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0) 1px),
+                repeating-radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0) 1px);
+            background-size: 100px 100px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 2;
+            /* MODIFIED: More intense flicker */
+            animation: static-flicker 0.03s infinite; /* CHANGED: Even faster flicker */
+        }
+        
+        /* --- Animations --- */
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100vh; }
+        }
+        
+        /* MODIFIED: More intense static flicker */
+        @keyframes static-flicker {
+            0%   { opacity: 0.1; }
+            20%  { opacity: 0.3; }
+            40%  { opacity: 0.15; }
+            60%  { opacity: 0.5; } 
+            80%  { opacity: 0.2; }
+            100% { opacity: 0.35; }
+        }
+        
+        /* MODIFIED: CRT Instability (jitter) - REDUCED SHAKE */
+        @keyframes crt-instability {
+          0%, 100% {
+            transform: translate(0, 0) skew(0);
+          }
+          25% {
+            transform: translate(0.5px, -0.5px) skew(-0.01deg); /* CHANGED: Was 1px / 0.02deg */
+          }
+          50% {
+            transform: translate(-0.5px, 0.5px) skew(0.01deg); /* CHANGED: Was 1px / 0.02deg */
+          }
+          75% {
+            transform: translate(0.5px, 0.5px) skew(0); /* CHANGED: Was 1px */
+          }
+        }
+
+        /* --- Typography & Content --- */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #0f0; /* CHANGED: Green */
+            padding-bottom: 25px;
+            text-shadow: 0 0 10px #0f0; /* CHANGED: Green */
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            color: #fff; /* Brighter for the name */
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px #0f0, 0 0 20px #fff; /* CHANGED: Green */
+        }
+
+        .contact-info {
+            margin-top: 15px;
+            font-size: 1.1em;
+            color: #8f8; /* CHANGED: Lighter green */
+        }
+
+        .contact-info a {
+            color: #8f8; /* CHANGED: Lighter green */
+            text-decoration: none;
+            transition: color 0.3s, text-shadow 0.3s;
+            margin: 0 10px;
+        }
+
+        .contact-info a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #8f8; /* CHANGED: Lighter green */
+            border-bottom: 1px solid #0f0; /* CHANGED: Green */
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px #8f8; /* CHANGED: Lighter green */
+        }
+
+        .summary p {
+            font-style: italic;
+            text-align: center;
+            color: #cfc; /* CHANGED: Light green */
+            font-size: 1.1em;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        li::before {
+            content: '>>';
+            font-family: 'Orbitron', sans-serif;
+            position: absolute;
+            left: 0;
+            color: #8f8; /* CHANGED: Lighter green */
+            font-weight: bold;
+            text-shadow: 0 0 5px #8f8; /* CHANGED: Lighter green */
+        }
+        
+        strong {
+            color: #cfc; /* CHANGED: Light green */
+            font-weight: 400; /* Bolder mono is often just thicker */
+        }
+
+        .job {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-left: 3px solid #0f0; /* CHANGED: Green */
+            background: rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        
+        .job:hover {
+            background: rgba(0, 255, 0, 0.1); /* CHANGED: Green */
+            border-left-color: #8f8; /* CHANGED: Lighter green */
+        }
+
+        .job h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.5em;
+            color: #cfc; /* CHANGED: Light green */
+        }
+
+        .job-details {
+            font-style: italic;
+            color: #aaa; /* Kept this for contrast */
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- NEW: Visual Static Overlay -->
+    <div id="visual-static-overlay"></div>
+
+    <!-- This canvas will now run the NEW network animation -->
+    <canvas id="neural-canvas"></canvas>
+    
+    <div class="scroll-container">
+        <div class="container">
+            <header>
+                <h1>Justin Macauley</h1>
+                <div class="contact-info">
+                    <span>989-906-3002</span> |
+                    <span><a href="mailto:justin@justinmacauley.com">justin@justinmacauley.com</a></span> |
+                    <span><a href="http://justinmacauley.com" target="_blank">justinmacauley.com</a></span>
+                </div>
+            </header>
+
+            <section class="summary">
+                <h2>Professional Summary</h2>
+                <p>Seasoned IT professional with comprehensive self-directed experience, specializing in Linux systems administration and cybersecurity.</p>
+            </section>
+
+            <section class="skills">
+                <h2>Skills</h2>
+                <ul>
+                    <li><strong>Linux Administration:</strong> Debian, Fedora, Slackware, Arch, Ubuntu, Kali (remote admin, security, CLI)</li>
+                    <li><strong>AI & Machine Learning:</strong> Language models (ChatGPT, Gemini, Claude, Copilot), Image/Video generation (Stable Diffusion, Midjourney).</li>
+                    <li><strong>AI Model Deployment:</strong> LM Studio, Nomic AI, CLI; Utilization of models (1B-7B Parameter Models: Gemma, Llama 3, Qwen, Phi3, and Mistral).</li>
+                    <li><strong>Cybersecurity:</strong> OSINT, ethical hacking, social engineering, wireless network exploitation, networking security practices.</li>
+                    <li><strong>Programming & Automation:</strong> Python, Shell Scripting.</li>
+                    <li><strong>Telecommunications, RF, and Networking:</strong> In-depth knowledge of RF, telecommunication, networking, and emerging technologies.</li>
+                    <li><strong>License:</strong> Licensed General Class FCC Amateur Radio Operator: WD8EHT.</li>
+                    <li><strong>Technical Skill:</strong> 85+ WPM touch typing. Electrical and RF Theory, Application, Repair, and Troubleshooting.</li>
+                </ul>
+            </section>
+
+            <section class="experience">
+                <h2>Experience</h2>
+                <div class="job">
+                    <h3>Retail and Senior Care</h3>
+                    <p class="job-details"><strong>Locations:</strong> Meijer, Walmart, Kmart, Lansing Gardens, Great Lakes Christian Homes | <strong>Dates:</strong> 2013-2024</p>
+                    <ul>
+                        <li>Worked in various retail and senior care positions, meeting the demands of customers and residents.</li>
+                        <li>Applied company beliefs and ethics to meet customer expectations and corporate standards.</li>
+                    </ul>
+                </div>
+                <div class="job">
+                    <h3>Technology Assistance Center</h3>
+                    <p class="job-details"><strong>Company:</strong> Ferris State University, Big Rapids, MI | <strong>Dates:</strong> 2014-2015</p>
+                    <ul>
+                        <li>Responded to, created, and documented service tickets through a ticketing system.</li>
+                        <li>Managed a work queue by accepting and resolving tickets in a timely manner.</li>
+                        <li>Delivered effective on-site hardware and software solutions for clients.</li>
+                    </ul>
+                </div>
+                <div class="job">
+                    <h3>Telemarketing</h3>
+                    <p class="job-details"><strong>Company:</strong> Midwest Publishing, Big Rapids, MI | Dates: 2017-2018</p>
+                    <ul>
+                        <li>Demonstrated customer engagement and lead generation skills using CRM software while representing various organizations.</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // --- COMPLETE SCRIPT REWRITE FOR v5 ---
+        
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- Network Structure ---
+        const layers = [];
+        const signals = [];
+        const layerCount = 5;
+        const nodesPerLayer = 10;
+        const nodeRadius = 4;
+        let layerSpacing = canvas.width / (layerCount + 1);
+        let nodeSpacing = canvas.height / (nodesPerLayer + 1);
+
+        // --- Characters for Signals ---
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/?;:"|}{[]~`!@#$%^&*()_-+=';
+        const charactersArray = characters.split('');
+        const baseFontSize = 14;
+
+        // --- Mouse Interaction ---
+        const mouse = {
+            x: null,
+            y: null,
+            radius: 150 // Radius of influence
+        };
+
+        // --- Event Listeners ---
+        window.addEventListener('mousemove', function(event) {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        window.addEventListener('mouseout', function() {
+            mouse.x = undefined;
+            mouse.y = undefined;
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Recalculate spacing
+            layerSpacing = canvas.width / (layerCount + 1);
+            nodeSpacing = canvas.height / (nodesPerLayer + 1);
+            init(); // Re-initialize network
+        });
+
+        // --- Lerp (Linear Interpolation) Function ---
+        function lerp(start, end, t) {
+            return start * (1 - t) + end * t;
+        }
+
+        // --- Node Class (The Neuron) ---
+        class Node {
+            constructor(x, y, layerIndex) {
+                this.x = x + (Math.random() - 0.5) * 20; // Add jitter to x
+                this.y = y + (Math.random() - 0.5) * 20; // Add jitter to y
+                this.baseX = x;
+                this.baseY = y;
+                this.layerIndex = layerIndex;
+                this.radius = nodeRadius;
+                this.activation = 0; // 0 = dormant, 1 = fully active (glowing)
+            }
+
+            // Draw the node and its glow
+            draw() {
+                // Draw glow
+                if (this.activation > 0) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + this.activation * 5, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 255, 0, ${this.activation * 0.5})`; /* CHANGED: Green glow */
+                    ctx.fill();
+                }
+                
+                // Draw node
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 0, ${0.5 + this.activation * 0.5})`; /* CHANGED: Green node */
+                ctx.fill();
+            }
+
+            update() {
+                // Slowly decay activation
+                if (this.activation > 0) {
+                    this.activation -= 0.03;
+                }
+                if (this.activation < 0) {
+                    this.activation = 0;
+                }
+
+                // Mouse interaction
+                if (mouse.x !== undefined && mouse.y !== undefined) {
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < mouse.radius) {
+                        // Excite node on mouse proximity
+                        this.activation = Math.max(this.activation, 1 - dist / mouse.radius);
+                        // Fire a signal if excited
+                        if (Math.random() > 0.95 && this.layerIndex < layerCount - 1) {
+                            fireSignal(this);
+                        }
+                    }
+                }
+                
+                // Jiggle
+                this.x += (Math.random() - 0.5) * 0.5;
+                this.y += (Math.random() - 0.5) * 0.5;
+                // Pull back to base
+                this.x = lerp(this.x, this.baseX, 0.02);
+                this.y = lerp(this.y, this.baseY, 0.02);
+
+                this.draw();
+            }
+        }
+
+        // --- Signal Class (The "Code") ---
+        class Signal {
+            constructor(source, target) {
+                this.source = source;
+                this.target = target;
+                this.progress = 0; // 0 to 1
+                this.speed = 0.03 + Math.random() * 0.03;
+                this.char = charactersArray[Math.floor(Math.random() * charactersArray.length)];
+            }
+
+            update() {
+                this.progress += this.speed;
+
+                // If signal reaches target
+                if (this.progress >= 1) {
+                    this.target.activation = 1; // Activate the target node
+                    
+                    // Fire new signals from the target
+                    if (this.target.layerIndex < layerCount - 1) {
+                        fireSignal(this.target);
+                    }
+                    return true; // Mark for deletion
+                }
+                return false; // Keep alive
+            }
+
+            draw() {
+                const x = lerp(this.source.x, this.target.x, this.progress);
+                const y = lerp(this.source.y, this.target.y, this.progress);
+
+                ctx.font = baseFontSize + 'px "Roboto Mono"';
+                ctx.fillStyle = '#8f8'; /* CHANGED: Bright green for signal */
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#0f0'; /* CHANGED: Green shadow */
+                ctx.fillText(this.char, x, y);
+                ctx.shadowBlur = 0; // Reset shadow
+            }
+        }
+
+        // --- Helper: Fire a signal from a node ---
+        function fireSignal(sourceNode) {
+            if (sourceNode.layerIndex >= layerCount - 1) return; // Don't fire from last layer
+            
+            // Find a random target in the next layer
+            const nextLayer = layers[sourceNode.layerIndex + 1];
+            const targetNode = nextLayer[Math.floor(Math.random() * nextLayer.length)];
+            
+            signals.push(new Signal(sourceNode, targetNode));
+        }
+
+        // --- Initialization Function ---
+        function init() {
+            layers.length = 0;
+            signals.length = 0;
+            
+            for (let i = 0; i < layerCount; i++) {
+                const currentLayer = [];
+                const x = layerSpacing * (i + 1);
+                for (let j = 0; j < nodesPerLayer; j++) {
+                    const y = nodeSpacing * (j + 1);
+                    currentLayer.push(new Node(x, y, i));
+                }
+                layers.push(currentLayer);
+            }
+        }
+        
+        // --- Draw static connections ---
+        function drawConnections() {
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'; /* CHANGED: Green connections */
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < layerCount - 1; i++) {
+                const currentLayer = layers[i];
+                const nextLayer = layers[i+1];
+                
+                for (const node of currentLayer) {
+                    for (const targetNode of nextLayer) {
+                        ctx.beginPath();
+                        ctx.moveTo(node.x, node.y);
+                        ctx.lineTo(targetNode.x, targetNode.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        // --- Main Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Use a semi-transparent fillRect to create trails
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw faint static connections
+            drawConnections();
+
+            // Update and draw all nodes
+            for (const layer of layers) {
+                for (const node of layer) {
+                    node.update();
+                }
+            }
+            
+            // Update and draw all signals
+            for (let i = signals.length - 1; i >= 0; i--) {
+                const signal = signals[i];
+                const shouldDelete = signal.update();
+                signal.draw();
+                if (shouldDelete) {
+                    signals.splice(i, 1);
+                }
+            }
+
+            // Randomly fire new signals from the input layer
+            if (Math.random() > 0.9) {
+                const sourceLayer = layers[0];
+                const sourceNode = sourceLayer[Math.floor(Math.random() * sourceLayer.length)];
+                fireSignal(sourceNode);
+            }
+        }
+
+        // --- Start ---
+        init();
+        animate();
+    </script>
+</body>
+</html>
